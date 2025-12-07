@@ -70,5 +70,51 @@ Nothing of interest in user ubuntu or super-spam (for now) or ssm-user, but I fo
 
 Wow, looks suspicious enough to check this further, I downloaded all the files.
 
+In xored.py there is this script:
+
+''from PIL import Image                                                                                                                                                              
+                                                                                                                                                                                   
+print("[!] Note Add extention also.")                                                                                                                                              
+                                                                                                                                                                                   
+pic1_name=input("[-] Enter First Image: " )                                                                                                                                        
+pic2_name=input("[-] Enter Second Image: ")                                                                                                                                        
+out_name=input("[-] Enter Name of The output image:")                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+pic1=Image.open(pic1_name)                                                                                                                                                         
+print("[+] Reading pic1")  #finding the size of picture1                                                                                                                           
+pic2=Image.open(pic2_name)                                                                                                                                                         
+print("[+] Reading pic2") #finding the size of picture2                                                                                                                            
+                                                                                                                                                                                   
+#pic2=pic1.resize(pic1.size) #resizing the pic2 according to pic1                                                                                                                  
+#print("[+] pic2 resized Successfully.")                                                                                                                                           
+                                                                                                                                                                                   
+'''                                                                                                                                                                                
+so that we can xor each and every coordinate of both the pictures                                                                                                                  
+'''                                                                                                                                                                           
+                                                                                                                                                                            
+print(pic2) #After Resizing                                                                                                                                                        
+                                                                                                                                                                            
+x_cord_pic1=pic1.size[0]                                                                                                                                                           
+y_cord_pic1=pic1.size[1]                                                                                                                                                                                                                                                                                                                                   
+newpic = Image.new('RGB',pic1.size) # Creating NEW image
+
+for y in range(y_cord_pic1):
+    for x in range(x_cord_pic1):
+        pixel_1=pic1.getpixel((x,y))
+        pixel_2=pic2.getpixel((x,y))
+        newpixel =[]
+        for p in range(len(pixel_1[:3])): #for all three values
+
+            newpixel.append(pixel_1[p] ^ pixel_2[p]) # ^ --> use to xor two Values
+        newpixel=tuple(newpixel)
+        #print(newpixel)
+        newpic.putpixel((x,y),newpixel)
+print("[+] Xored successfully")
+print("[+]  Successfully saved as "+out_name)
+newpic.save(out_name)
+''
+
+Bascially it takes all pixels from image 1 and xors them with pixels of image 2 thus creating a new image. The challenge seems to be to remove noise by passing the right 2 images to this program and then looking at the message of newly created png. But actually if you look at d.png you can easily read whats's written there, and if you can't then modern ocr's built into ChatGPT for example, can tell this info. 
+Great, we read the message and it seems like the password for persistence left by SuperSpam is $$L3qwert30kcool.
+
 
 
