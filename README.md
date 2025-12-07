@@ -1,5 +1,6 @@
+
 # SuperSpam-Room-Writeup
-Hack back into the Linux server
+## Hack back into the Linux server
 
 Starting with a usual nmap scan:
 
@@ -9,17 +10,17 @@ I then went to see the webpage:
 
 <img width="764" height="544" alt="Screenshot 2025-12-05 103340" src="https://github.com/user-attachments/assets/a831475f-0708-4801-9ab2-af12499c52ad" />
 
-And the answer to the first question is revealed (yes, if you ran the nmap with -sC you would've seen the CMS version right away in scan results).
+And the answer to the first question is revealed (yes, if you ran the nmap with `-sC` you would've seen the CMS version right away in scan results).
 
 I then researched for this version and saw the kind of CVE that's useful to us:
 
 <img width="1242" height="297" alt="image" src="https://github.com/user-attachments/assets/fe0161e5-dae1-4d9c-9b96-1f18b4fd532d" />
 
-But this means we need to log into the CMS admin panel (http://[machine-ip]/concrete5/index.php/login - this is found by examining the main page, there is a Log in button in footer of site).
+But this means we need to log into the CMS admin panel (`http://[machine-ip]/concrete5/index.php/login` - this is found by examining the main page, there is a Log in button in footer of site).
 
-I then got stuck and didn't understand how to proceed - we have a couple of VNC ports and a webserver wuthout any hints (I only found a couple of possible usernames - http://[machine-ip]/concrete5/index.php/blog)
+I then got stuck and didn't understand how to proceed - we have a couple of VNC ports and a webserver without any hints (I only found a couple of possible usernames - `http://[machine-ip]/concrete5/index.php/blog`)
 
-I decided to scan using nikto - no results, and then used nmap to scan once again just in case (using -p-):
+I decided to scan using nikto - no results, and then used nmap to scan once again just in case (using `-p-`):
 
 <img width="540" height="231" alt="image" src="https://github.com/user-attachments/assets/bc139166-fc40-48dd-83cb-26e197835ecc" />
 
@@ -31,13 +32,13 @@ SSH and anon login FTP - looks like just what we need to uncover new pieces of p
 
 <img width="1147" height="323" alt="image" src="https://github.com/user-attachments/assets/2664700d-1f6e-4d5b-96e3-51b78b7e411d" />
 
-I downloaded all files from .cap folder (since it was hidden and suspicious) and the note. The IDS_logs folder contained lots of files seemingly encrypted by Evil Spam so I left them for now.
+I downloaded all files from `.cap` folder (since it was hidden and suspicious) and the note. The `IDS_logs` folder contained lots of files seemingly encrypted by Evil Spam so I left them for now.
 
 <img width="1247" height="725" alt="image" src="https://github.com/user-attachments/assets/2890f807-2aa9-4dde-8279-8876b2a57c5f" />
 
-Great, we have a hint from Spam himself which means there is something in .cap file (possibly password) which we need to extract.
+Great, we have a hint from Spam himself which means there is something in `.cap` file (possibly password) which we need to extract.
 
-I googled on how to extract a password from .cap file and then used aircrack-ng:
+I googled on how to extract a password from `.cap` file and then used aircrack-ng:
 
 <img width="1246" height="404" alt="image" src="https://github.com/user-attachments/assets/6bf239dc-1cc4-4600-abe5-f650789fe7de" />
 
@@ -45,7 +46,7 @@ Now we can proceed and log into the CMS by trying the usernames we found:
 
 <img width="335" height="860" alt="image" src="https://github.com/user-attachments/assets/754b7157-354f-42c4-87d7-b8405edfc936" />
 
-I don't know why but the page lagged really hard and got stuck after I clicked "log in" but after reloading (ctrl+f5) we now have access to CMS, which means where must be a place to upload a php shell (like the CVE told us).
+I don't know why but the page lagged really hard and got stuck after I clicked "log in" but after reloading (`ctrl+f5`) we now have access to CMS, which means there must be a place to upload a php shell (like the CVE told us).
 
 I went to system and settings and saw the option for allowed file types so I modified it to include php. Next, go to Files and click on Upload File:
 
@@ -57,12 +58,14 @@ I used the default reverse shell (https://github.com/pentestmonkey/php-reverse-s
 
 <img width="1262" height="321" alt="image" src="https://github.com/user-attachments/assets/6ba3deec-e46b-49d4-814b-6a584d5eff7b" />
 
-We are www-data, great :), I search for the flag and it's in home/personal/Work.
+We are www-data, great :), I search for the flag and it's in `home/personal/Work`.
 
-I also found a note from Spam in the same parent folder: ''My next evil plan is to ensure that all linux filesystems are disorganised so that these 
-linux users will never find what they are looking for (whatever that is)... That should
-stop them from gaining back control!
-''.
+I also found a note from Spam in the same parent folder: 
+
+> ''My next evil plan is to ensure that all linux filesystems are disorganised so that these 
+> linux users will never find what they are looking for (whatever that is)... That should
+> stop them from gaining back control!
+> ''
 
 Nothing of interest in user ubuntu or super-spam (for now) or ssm-user, but I found a hidden folder in lucy_loser home:
 
@@ -70,11 +73,12 @@ Nothing of interest in user ubuntu or super-spam (for now) or ssm-user, but I fo
 
 Wow, looks suspicious enough to check this further, I downloaded all the files.
 
-In xored.py there is this script:
+In `xored.py` there is this script:
 
-''from PIL import Image                                                                                                                                                              
+```
+from PIL import Image                                                                                                                                                              
                                                                                                                                                                                    
-print("[!] Note Add extention also.")                                                                                                                                              
+print("[!] Note Add extension also.")                                                                                                                                              
                                                                                                                                                                                    
 pic1_name=input("[-] Enter First Image: " )                                                                                                                                        
 pic2_name=input("[-] Enter Second Image: ")                                                                                                                                        
@@ -93,8 +97,8 @@ so that we can xor each and every coordinate of both the pictures
                                                                                                                                                                             
 print(pic2) #After Resizing                                                                                                                                                        
                                                                                                                                                                             
-x_cord_pic1=pic1.size[0]                                                                                                                                                           
-y_cord_pic1=pic1.size[1]                                                                                                                                                                                                                                                                                                                                   
+x_cord_pic1=pic1.size                                                                                                                                                           
+y_cord_pic1=pic1.size[1]
 newpic = Image.new('RGB',pic1.size) # Creating NEW image
 
 for y in range(y_cord_pic1):
@@ -111,10 +115,11 @@ for y in range(y_cord_pic1):
 print("[+] Xored successfully")
 print("[+]  Successfully saved as "+out_name)
 newpic.save(out_name)
-''
+```
 
-Bascially it takes all pixels from image 1 and xors them with pixels of image 2 thus creating a new image. The challenge seems to be to remove noise by passing the right 2 images to this program and then looking at the message of newly created png. But actually if you look at d.png you can easily read whats's written there, and if you can't then modern ocr's built into ChatGPT for example, can tell this info. 
-Great, we read the message and it seems like the password for persistence left by SuperSpam is $$L3qwert30kcool.
+Basically it takes all pixels from image 1 and xors them with pixels of image 2 thus creating a new image. The challenge seems to be to remove noise by passing the right 2 images to this program and then looking at the message of newly created png. But actually if you look at `d.png` you can easily read what's written there, and if you can't then modern ocr's built into ChatGPT for example, can tell this info. 
+
+Great, we read the message and it seems like the password for persistence left by SuperSpam is `$$L3qwert30kcool`.
 
 I tried this password and it is correct for donaldump:
 
@@ -136,7 +141,7 @@ Then run vncviewer to log in:
 
 <img width="1048" height="554" alt="image" src="https://github.com/user-attachments/assets/2fb95bf0-c47f-4b13-b507-dc8dec731a62" />
 
-After cd into root I see a hidden folder .nothing:
+After cd into root I see a hidden folder `.nothing`:
 
 <img width="477" height="184" alt="image" src="https://github.com/user-attachments/assets/c1cb1485-db2f-489d-abc0-fb7dcfbd498b" />
 
@@ -144,7 +149,8 @@ And the root flag is found! We just need to decrypt it:
 
 <img width="619" height="621" alt="image" src="https://github.com/user-attachments/assets/184a593b-89b4-4cfc-ab19-964466fa2530" />
 
-Done, the flag is flag{iteeKdbu==hjK6§YuUu7-6N_}.
+Done, the flag is `flag{iteeKdbu==hjK6§YuUu7-6N_}`.
 
-This was a good room, fairly straightforward and interesting, the VNC ports took a great amount of my time to research but in the end they were the final step to root so I guess I wasted some time on them :| . I liked that the privesc was easy and didn't require transfering linpeas or searching for an hour for about anything useful - in this case you just browsed through users and found the next step pretty fast. This room is listed as blue team but I wouldn't say it's that - we need to hack back into the machine using standard pentesting tricks and tools and the room didn't require thinking about the attack much - how did it happen, what was the entry point, etc. We were just given a machine and no info, like in a standard CTF scenario. Still, a good room and I definitely learned a couple of useful tricks here.
+This was a good room, fairly straightforward and interesting, the VNC ports took a great amount of my time to research but in the end they were the final step to root so I guess I wasted some time on them :| . I liked that the privesc was easy and didn't require transferring linpeas or searching for an hour for about anything useful - in this case you just browsed through users and found the next step pretty fast. This room is listed as blue team but I wouldn't say it's that - we need to hack back into the machine using standard pentesting tricks and tools and the room didn't require thinking about the attack much - how did it happen, what was the entry point, etc. We were just given a machine and no info, like in a standard CTF scenario. Still, a good room and I definitely learned a couple of useful tricks here.
+
 
