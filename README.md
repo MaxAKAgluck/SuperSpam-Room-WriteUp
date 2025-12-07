@@ -116,5 +116,35 @@ newpic.save(out_name)
 Bascially it takes all pixels from image 1 and xors them with pixels of image 2 thus creating a new image. The challenge seems to be to remove noise by passing the right 2 images to this program and then looking at the message of newly created png. But actually if you look at d.png you can easily read whats's written there, and if you can't then modern ocr's built into ChatGPT for example, can tell this info. 
 Great, we read the message and it seems like the password for persistence left by SuperSpam is $$L3qwert30kcool.
 
+I tried this password and it is correct for donaldump:
 
+<img width="718" height="364" alt="image" src="https://github.com/user-attachments/assets/876897ea-db9c-41bc-beee-4980ba4c1618" />
+
+I then used ssh for easier access and comfort. I saw that the home directory was denied so I tried to change perms and it worked:
+
+<img width="1153" height="487" alt="image" src="https://github.com/user-attachments/assets/0c0754c7-2314-4108-87eb-c9c1adfec334" />
+
+The 2 directories weren't useful, but we see a passwd file:
+
+<img width="745" height="117" alt="image" src="https://github.com/user-attachments/assets/cb88e41c-3fad-4662-bbce-da54899430ec" />
+
+I copied it to my VM and then tried to log into VNC since its the only vector left. We don't have sudo and vncviewer is not installed on target machine so we can't directly VNC, I asked chatgpt on what to do in this case and then googled and port forwarding seems like the easiest option:
+
+<img width="1134" height="1146" alt="image" src="https://github.com/user-attachments/assets/b7e4ac17-50c1-4f3f-ad39-9838e60c0a9e" />
+
+Then run vncviewer to log in:
+
+<img width="1048" height="554" alt="image" src="https://github.com/user-attachments/assets/2fb95bf0-c47f-4b13-b507-dc8dec731a62" />
+
+After cd into root I see a hidden folder .nothing:
+
+<img width="477" height="184" alt="image" src="https://github.com/user-attachments/assets/c1cb1485-db2f-489d-abc0-fb7dcfbd498b" />
+
+And the root flag is found! We just need to decrypt it:
+
+<img width="619" height="621" alt="image" src="https://github.com/user-attachments/assets/184a593b-89b4-4cfc-ab19-964466fa2530" />
+
+Done, the flag is flag{iteeKdbu==hjK6§YuUu7-6N_}.
+
+This was a good room, fairly straightforward and interesting, the VNC ports took a great amount of my time to research but in the end they were the final step to root so I guess I wasted some time on them :| . I liked that the privesc was easy and didn't require transfering linpeas or searching for an hour for about anything useful - in this case you just browsed through users and found the next step pretty fast. This room is listed as blue team but I wouldn't say it's that - we need to hack back into the machine using standard pentesting tricks and tools and the room didn't require thinking about the attack much - how did it happen, what was the entry point, etc. We were just given a machine and no info, like in a standard CTF scenario. Still, a good room and I definitely learned a couple of useful tricks here.
 
